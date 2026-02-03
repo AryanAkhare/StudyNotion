@@ -1,0 +1,88 @@
+Table users {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  firstName varchar
+  lastName varchar
+  email varchar [note: "unique"]
+  password varchar
+  accountType varchar
+  additionalDetails varchar
+  image varchar
+  courseProgess varchar
+}
+Table profiles {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  gender varchar
+  dateOfBirth datetime
+  about text
+  contactNumber varchar
+}
+Table otp {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  email varchar
+  otp varchar
+  createdAt datetime [note: "TTL: 5 minutes"]
+}
+Table courses {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  courseName varchar
+  courseDescription text
+  instructor varchar
+  whatYouWillLearn text
+  price int
+  tag varchar
+}
+Table sections {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  sectionName varchar
+  courseId varchar
+}
+Table sub_sections {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  title varchar
+  timeDuration varchar
+  description text
+  videoUrl varchar
+  additionalUrl varchar
+  section_id varchar
+}
+Table course_progress {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  courseId varchar
+}
+Table rating_and_reviews {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  user varchar
+  rating int
+  review text
+}
+Table tags {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  name varchar
+  description text
+  course varchar
+}
+Table invoices {
+  id varchar [primary key, note: "MongoDB ObjectId"]
+  userId varchar
+  courseId varchar
+  courseName varchar
+  price int
+  billingAddress text
+  pincode varchar
+}
+Ref: users.additionalDetails > profiles.id
+
+Ref: courses.instructor > users.id
+Ref: courses.tag > tags.id
+
+Ref: sections.courseId > courses.id
+Ref: sub_sections.section_id > sections.id
+
+Ref: course_progress.courseId > courses.id
+
+Ref: rating_and_reviews.user > users.id
+
+Ref: tags.course > courses.id
+
+Ref: invoices.userId > users.id
+Ref: invoices.courseId > courses.id

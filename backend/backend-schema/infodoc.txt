@@ -1,0 +1,96 @@
+2026-02-03 — StudyNest Backend Schema (Readable Summary)
+
+Overview:
+- Backend uses MongoDB with Mongoose models located in `backend/models`.
+- Key concepts: Users, Profiles, Courses (with Sections/SubSections), CourseProgress, OTPs, Reviews, Tags, and Invoices.
+- The `OTP` model includes a pre-save middleware that triggers `utils/mailSender` to email OTPs on creation.
+
+Models and fields:
+
+1) User
+- `firstName` (String, required)
+- `lastName` (String, required)
+- `email` (String, required)
+- `password` (String, required)
+- `accountType` (String enum: Admin | Student | Instructor, required)
+- `additionalDetails` (ObjectId ref `Profile`, required)
+- `courses` (Array of ObjectId ref `Course`)
+- `image` (String, required, default URL)
+- `courseProgess` (Array of ObjectId ref `CourseProgress`)
+
+2) Profile
+- `gender` (String enum: Male | Female | Other, required)
+- `dateOfBirth` (Date, required)
+- `about` (String)
+- `contactNumber` (String)
+
+3) OTP
+- `email` (String, required)
+- `otp` (String, required)
+- `createdAt` (Date, default now, TTL expires after 5 minutes)
+- Notes: `pre('save')` middleware calls `mailSender(email, subject, otp)` to send verification emails.
+
+4) Course
+- `courseName` (String, required)
+- `courseDescription` (String, required)
+- `instructor` (ObjectId ref `User`, required)
+- `WhatYouWillLearn` (String, required)
+- `courseContent` (Array intended to reference `Section` documents)
+- `ratingAndReviews` (Array of ObjectId ref `RatingAndReview`)
+- `price` (Number, required)
+- `tag` (ObjectId ref `Tag`)
+- `studentsEnrolled` (Array of ObjectId ref `User`)
+
+5) Section
+- `sectionName` (String, required)
+- `subSections` (Array of ObjectId ref `SubSection`)
+
+6) SubSection
+- `title` (String, required)
+- `timeDuration` (String, required)
+- `description` (String, required)
+- `videoUrl` (String, required)
+- `additionalUrl` (String, optional)
+
+7) CourseProgress
+- `courseId` (ObjectId ref `Course`)
+- `completedVideos` (Array of ObjectId ref `SubSection`)
+
+8) RatingAndReview
+- `user` (ObjectId ref `User`, required)
+- `rating` (Number, required)
+- `review` (String, required)
+
+9) Tag
+- `name` (String, required)
+- `description` (String, required)
+- `course` (ObjectId ref `Course`) — note: `tags.js` has a small typo (`mongoos`), check file for correctness.
+
+10) Invoices
+- File `backend/models/Invoices.js` is currently empty — no schema defined. Suggested fields:
+  - `userId` (ObjectId ref `User`)
+  - `courseId` (ObjectId ref `Course`)
+  - `courseName` (String)
+  - `price` (Number)
+  - `billingAddress` (String)
+  - `pincode` (String)
+
+Relationships (high level):
+- `User.additionalDetails` -> `Profile` (1:1)
+- `User.courses` -> `Course` (many)
+- `Course.instructor` -> `User`
+- `Course.courseContent` -> `Section` (sections contain subSections)
+- `Section.subSections` -> `SubSection`
+- `Course.ratingAndReviews` -> `RatingAndReview`
+- `Course.tag` -> `Tag`
+- `CourseProgress.courseId` -> `Course`; `CourseProgress.completedVideos` -> `SubSection`
+- `OTP` documents are time-limited (TTL) and trigger email sending via pre-save middleware
+
+Notes & action items:
+- `backend/models/Invoices.js` is empty — add an invoice schema if invoices are required.
+- `backend/models/tags.js` contains `mongoos.Schema.Types.ObjectId` typo; fix to `mongoose.Schema.Types.ObjectId` and ensure exported model name matches usage (`Tag`).
+- `backend/models/OTP.js` imports `mailSender` via `require("mailSender")` — ensure the correct relative path `../utils/mailSender` (or similar) so the module resolves.
+- Add error handling and logging to `mailSender` and consider retry/backoff for email failures.
+- Consider adding indexes for commonly queried fields (e.g., `User.email`, `OTP.email`) and rate-limiting on OTP generation endpoints.
+
+This document was generated from the current model files in `backend/models` on 2026-02-03.

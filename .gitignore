@@ -1,0 +1,81 @@
+# =========================
+# Node / Express
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Build outputs
+# =========================
+dist/
+build/
+backend/dist/
+frontend/build/
+
+# =========================
+# React / Vite / CRA
+# =========================
+.vite/
+.vitepress/
+.cache/
+.parcel-cache/
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# MongoDB
+# =========================
+data/
+dump/
+*.bson
+*.json.lock
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# =========================
+# Testing
+# =========================
+coverage/
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+
+# =========================
+# Certificates / Keys
+# =========================
+*.pem
+*.key
+
+# =========================
+# Misc
+# =========================
+*.local

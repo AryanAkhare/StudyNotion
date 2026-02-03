@@ -1,0 +1,48 @@
+2026-02-03 — Code Flow & What Was Added Today
+
+Entry point:
+- backend/index.js boots the Express app, loads configuration, connects to the database, and registers routes and middleware.
+
+Database connection:
+- config/database.js initializes the DB client (Mongoose or equivalent) and exports the shared connection.
+
+Models (core):
+- User.js: stores user credentials, auth tokens, and profile references.
+- OTP.js: stores one-time codes and metadata. A pre-save hook now triggers email sending when an OTP is created.
+- Profile.js: extended user profile information.
+- Course.js, Section.js, SubSection.js: course structure and content documents.
+- CourseProgress.js: user's progress tracking for course content.
+- Invoices.js: payment and receipt records.
+- RatingAndReview.js: course ratings and reviews.
+- tags.js: tagging and search metadata for courses.
+
+Utilities:
+- utils/mailSender.js: centralized email helper (uses Nodemailer or similar) to compose and send emails such as OTPs and notifications.
+
+Controllers:
+- controllers/Auth.js: signup, login, token issuance, and auth-related endpoints.
+- controllers/ResetPassword.js: generates OTPs for password resets, verifies them, and updates user passwords.
+
+Middleware:
+- middlewares/auth.js: protects routes by verifying JWT/session and attaching user info to requests.
+
+Routes:
+- /routes maps HTTP endpoints to controller actions (auth, reset-password, courses, profile, etc.).
+
+Today's implemented behavior (summary):
+- Models created/updated for users, courses, progress, and related data.
+- `utils/mailSender.js` implemented to send emails.
+- `OTP` model has a pre-save hook that invokes `mailSender` so an email is automatically sent whenever a new OTP is created (e.g., during password-reset requests).
+
+Typical runtime sequence (how it works now):
+1. Client requests a password reset via the endpoint handled in `ResetPassword.js`.
+2. The controller creates and saves an `OTP` document.
+3. The `OTP` model's pre-save hook calls `utils/mailSender.js` to email the OTP to the user.
+4. The user submits the OTP to a verification endpoint; the controller validates it against `OTP` records.
+5. On successful validation, the controller updates the `User` password.
+6. Protected endpoints rely on `middlewares/auth.js` for access control.
+
+What the code shows today (concise):
+- A backend implementing authentication and password-reset flows, course/content data models, and automated OTP emailing on OTP creation.
+
+
