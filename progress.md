@@ -1,4 +1,6 @@
-1. 2026-02-03 — Code Flow & What Was Added Today
+# Backend Development Log
+
+## 1. 2026-02-03 — Code Flow & What Was Added Today
 
 Entry point:
 - backend/index.js boots the Express app, loads configuration, connects to the database, and registers routes and middleware.
@@ -45,9 +47,7 @@ Typical runtime sequence (how it works now):
 What the code shows today (concise):
 - A backend implementing authentication and password-reset flows, course/content data models, and automated OTP emailing on OTP creation.
 
-
-
-2. 2026-02-04 — Code Flow & What Was Added Today
+## 2. 2026-02-04 — Code Flow & What Was Added Today
 
 Controllers:
 - Auth.js:

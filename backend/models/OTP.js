@@ -3,6 +3,7 @@ const mailSender=require("mailSender")
 
 
 
+
 const OTPSchema=mongoose.Schema({
     email:{
         type:String,
