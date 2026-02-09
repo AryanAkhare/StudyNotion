@@ -27,7 +27,7 @@ exports.createCourse = async (req, res) => {
     }
 
     //check instructor
-    const userId = req.User._id;
+    const userId = req.User._id; //VERIFY USER AND instructor ID different
     const instructorDetails = await User.findById(userId);
     console.log("instructor details:", instructorDetails);
 
