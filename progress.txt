@@ -76,3 +76,5 @@ Current Behavior:
 - OTPs are auto-deleted after expiry using TTL.
 - Signup and login flows are fully connected with OTP verification and JWT-based authentication.
 - Password reset flow is functional using token-based verification and expiry checks.
+
+3.2026-02-09
