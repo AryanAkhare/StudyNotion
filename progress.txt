@@ -78,3 +78,62 @@ Current Behavior:
 - Password reset flow is functional using token-based verification and expiry checks.
 
 3.2026-02-09
+Controllers:
+
+Tag.js:
+
+createTag: allows admin/instructor to create new course tags.
+
+getAllTags: fetches and returns all available tags for course categorization and filtering.
+
+Course.js:
+
+createCourse: handles course creation with title, description, price, category (tag), thumbnail upload, and instructor association.
+
+getAllCourses: fetches all published courses with basic details for listing/browsing.
+
+Utilities:
+
+utils/imageUploader.js:
+
+Centralized Cloudinary upload helper.
+
+Handles image uploads (course thumbnails, future assets) and returns secure URLs.
+
+Abstracts Cloudinary config and upload logic from controllers.
+
+Models (Used/Integrated):
+
+Course.js:
+
+Integrated with tags, instructor (User), and thumbnail image URLs.
+
+tags.js:
+
+Used for course categorization and discovery.
+
+Current Behavior:
+
+Tags can be created and retrieved via API.
+
+Courses can be created with image uploads handled through Cloudinary.
+
+Course listing endpoint returns all available courses for users to browse.
+
+Typical Runtime Flow (Today’s Additions):
+
+Admin/Instructor creates tags using Tag controller.
+
+Instructor uploads a course thumbnail → imageUploader uploads it to Cloudinary.
+
+Course controller creates a new Course document with tag, instructor, and image URL.
+
+Users fetch all courses via the getAllCourses endpoint.
+
+What the Code Shows Today (Concise):
+
+Tag management implemented.
+
+Cloudinary-based image upload utility added.
+
+Core course creation and course listing functionality now operational.

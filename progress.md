@@ -76,3 +76,42 @@ Current Behavior:
 - OTPs are auto-deleted after expiry using TTL.
 - Signup and login flows are fully connected with OTP verification and JWT-based authentication.
 - Password reset flow is functional using token-based verification and expiry checks.
+
+
+## 3. 2026-02-09 — Code Flow & What Was Added Today
+
+### Controllers:
+- **Tag.js**:
+  - `createTag`: Allows admin or instructor users to create new course tags.
+  - `showAllTags`: Fetches and returns all available tags for course categorization and filtering.
+
+- **Course.js**:
+  - `createCourse`: Handles course creation including title, description, price, category (tag), thumbnail image upload, and instructor association.
+  - `showAllCourses`: Fetches all published courses with basic details for listing and browsing.
+
+### Utilities:
+- **utils/imageUploader.js**:
+  - Centralized image upload helper using Cloudinary.
+  - Handles image uploads such as course thumbnails and future assets.
+  - Returns secure image URLs after successful upload.
+  - Abstracts Cloudinary configuration and upload logic from controllers.
+
+### Models (Used / Integrated):
+- **Course.js**: Integrated with tags, instructor (User), and thumbnail image URLs.
+- **tags.js**: Used for course categorization and discovery.
+
+### Current Behavior:
+- Tags can be created and retrieved through API endpoints.
+- Courses can be created with thumbnail images uploaded to Cloudinary.
+- Course listing endpoint returns all available courses for users to browse.
+
+### Typical Runtime Sequence:
+1. Admin or Instructor creates tags using the Tag controller.
+2. Instructor uploads a course thumbnail; `imageUploader` uploads the image to Cloudinary.
+3. Course controller creates a new Course document with tag, instructor, and image URL.
+4. Users fetch all courses via the `getAllCourses` endpoint.
+
+### What the Code Shows Today (Concise):
+- Tag management functionality implemented.
+- Cloudinary-based image upload utility added.
+- Core course creation and course listing features are operational.
