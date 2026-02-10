@@ -23,7 +23,7 @@ const courseSchema = new mongoose.Schema({
   courseContent: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      type: "Section",
+      ref: "Section",
     },
   ],
   ratingAndReviews: [

@@ -1,117 +1,134 @@
 # Backend Development Log
 
+---
+
 ## 1. 2026-02-03 — Code Flow & What Was Added Today
 
-Entry point:
-- backend/index.js boots the Express app, loads configuration, connects to the database, and registers routes and middleware.
+### Entry Point
+- `backend/index.js` boots the Express application, loads configuration, connects to the database, and registers routes and middleware.
 
-Database connection:
-- config/database.js initializes the DB client (Mongoose or equivalent) and exports the shared connection.
+### Database Connection
+- `config/database.js` initializes the database client (Mongoose or equivalent) and exports a shared database connection.
 
-Models (core):
-- User.js: stores user credentials, auth tokens, and profile references.
-- OTP.js: stores one-time codes and metadata. A pre-save hook now triggers email sending when an OTP is created.
-- Profile.js: extended user profile information.
-- Course.js, Section.js, SubSection.js: course structure and content documents.
-- CourseProgress.js: user's progress tracking for course content.
-- Invoices.js: payment and receipt records.
-- RatingAndReview.js: course ratings and reviews.
-- tags.js: tagging and search metadata for courses.
+### Models (Core)
+- **User.js**: Stores user credentials, authentication tokens, roles, and profile references.
+- **OTP.js**: Stores one-time codes and related metadata. Includes a pre-save hook to trigger email sending when an OTP is created.
+- **Profile.js**: Stores extended user profile information.
+- **Course.js**: Represents course metadata and structure.
+- **Section.js**: Defines sections within a course.
+- **SubSection.js**: Stores individual lessons or content units.
+- **CourseProgress.js**: Tracks user progress through course content.
+- **Invoices.js**: Manages payment and receipt records.
+- **RatingAndReview.js**: Stores course ratings and user reviews.
+- **tags.js**: Stores tagging and search metadata for courses.
 
-Utilities:
-- utils/mailSender.js: centralized email helper (uses Nodemailer or similar) to compose and send emails such as OTPs and notifications.
+### Utilities
+- **utils/mailSender.js**: Centralized email helper (using Nodemailer or similar) for sending OTPs and system notifications.
 
-Controllers:
-- controllers/Auth.js: signup, login, token issuance, and auth-related endpoints.
-- controllers/ResetPassword.js: generates OTPs for password resets, verifies them, and updates user passwords.
+### Controllers
+- **controllers/Auth.js**: Handles signup, login, token issuance, and authentication-related endpoints.
+- **controllers/ResetPassword.js**: Generates OTPs for password resets, verifies them, and updates user passwords.
 
-Middleware:
-- middlewares/auth.js: protects routes by verifying JWT/session and attaching user info to requests.
+### Middleware
+- **middlewares/auth.js**: Protects routes by verifying JWT or session tokens and attaching user information to requests.
 
-Routes:
-- /routes maps HTTP endpoints to controller actions (auth, reset-password, courses, profile, etc.).
+### Routes
+- `/routes` maps HTTP endpoints to controller actions (authentication, password reset, courses, profile, etc.).
 
-Today's implemented behavior (summary):
-- Models created/updated for users, courses, progress, and related data.
-- utils/mailSender.js implemented to send emails.
-- OTP model has a pre-save hook that invokes mailSender so an email is automatically sent whenever a new OTP is created (e.g., during password-reset requests).
+### Today’s Implemented Behavior
+- Models created or updated for users, courses, progress tracking, and related data.
+- `utils/mailSender.js` implemented for sending emails.
+- OTP model enhanced with a pre-save hook to automatically send emails on OTP creation.
 
-Typical runtime sequence (how it works now):
-1. Client requests a password reset via the endpoint handled in ResetPassword.js.
+### Typical Runtime Sequence
+1. Client requests a password reset via the ResetPassword controller.
 2. The controller creates and saves an OTP document.
-3. The OTP model's pre-save hook calls utils/mailSender.js to email the OTP to the user.
-4. The user submits the OTP to a verification endpoint; the controller validates it against OTP records.
-5. On successful validation, the controller updates the User password.
-6. Protected endpoints rely on middlewares/auth.js for access control.
+3. The OTP model’s pre-save hook invokes `utils/mailSender.js` to email the OTP.
+4. The user submits the OTP to a verification endpoint.
+5. On successful validation, the controller updates the user’s password.
+6. Protected endpoints rely on `middlewares/auth.js` for access control.
 
-What the code shows today (concise):
-- A backend implementing authentication and password-reset flows, course/content data models, and automated OTP emailing on OTP creation.
+### What the Code Shows Today
+- A backend implementing authentication and password-reset flows, course/content data models, and automated OTP emailing.
+
+---
 
 ## 2. 2026-02-04 — Code Flow & What Was Added Today
 
-Controllers:
-- Auth.js:
-  - sendOTP: handles OTP generation for signup. Validates email, checks if user already exists, generates a unique 6-digit OTP, stores it in the OTP collection, and relies on TTL in the OTP model to auto-expire it after 5 minutes.
-  - signup: validates request data, checks password match, verifies user existence, fetches the most recent OTP, validates it, hashes the password, creates a Profile document, and creates a new User with default avatar.
-  - login: validates credentials, checks user existence, compares hashed passwords, generates JWT with role info, stores token, and sends it via secure HTTP-only cookie.
-  - changePassword: controller structure added (logic to be implemented).
+### Controllers
 
-- ResetPassword.js:
-  - resetPasswordToken: validates email, checks user existence, generates a secure reset token, updates the User with token and expiration time, creates a password-reset URL, and sends it via email.
-  - resetPassword: validates passwords, verifies reset token, checks token expiry, hashes the new password, updates the User password, and returns success response.
+#### Auth.js
+- **sendOTP**:  
+  Validates email, checks if the user already exists, generates a unique 6-digit OTP, stores it in the OTP collection, and relies on TTL indexing to auto-expire the OTP after 5 minutes.
+- **signup**:  
+  Validates request data, checks password match, verifies user existence, fetches the most recent OTP, validates it, hashes the password, creates a Profile document, and creates a new User with a default avatar.
+- **login**:  
+  Validates credentials, checks user existence, compares hashed passwords, generates a JWT containing role information, stores the token, and sends it via a secure HTTP-only cookie.
+- **changePassword**:  
+  Controller structure added (logic to be implemented).
 
-Middleware:
-- auth.js: verifies JWT from cookies/body/headers and attaches decoded user info to the request.
-- isStudent, isAdmin, isInstructor: role-based access control for protected routes.
+#### ResetPassword.js
+- **resetPasswordToken**:  
+  Validates email, checks user existence, generates a secure reset token, updates the User with the token and expiration time, creates a password-reset URL, and sends it via email.
+- **resetPassword**:  
+  Validates passwords, verifies reset token, checks token expiry, hashes the new password, updates the User password, and returns a success response.
 
-Models:
-- User.js: extended with `token` and `resetPasswordExpires` fields to support password reset functionality.
-- OTP.js: stores OTP values with email reference and TTL expiry; pre-save hook sends OTP email automatically.
-- Profile.js: stores extended user profile details.
+### Middleware
+- **auth.js**: Verifies JWT tokens from cookies, request body, or headers and attaches decoded user data to the request.
+- **isStudent**: Restricts access to student-only routes.
+- **isAdmin**: Restricts access to admin-only routes.
+- **isInstructor**: Restricts access to instructor-only routes.
 
-Utilities:
-- utils/mailSender.js: reused for OTP delivery and password reset emails.
+### Models
+- **User.js**: Extended with `token` and `resetPasswordExpires` fields to support password reset functionality.
+- **OTP.js**: Stores OTP values with email references and TTL-based expiration; pre-save hook sends OTP emails automatically.
+- **Profile.js**: Stores extended user profile details.
 
-Current Behavior:
-- OTPs are auto-deleted after expiry using TTL.
-- Signup and login flows are fully connected with OTP verification and JWT-based authentication.
-- Password reset flow is functional using token-based verification and expiry checks.
+### Utilities
+- **utils/mailSender.js**: Reused for OTP delivery and password reset email notifications.
 
+### Current Behavior
+- OTP records automatically expire and are deleted using TTL indexing.
+- Signup and login workflows are fully integrated with OTP verification and JWT-based authentication.
+- Password reset flow is functional using secure token-based verification and expiry validation.
+
+---
 
 ## 3. 2026-02-09 — Code Flow & What Was Added Today
 
-### Controllers:
-- **Tag.js**:
-  - `createTag`: Allows admin or instructor users to create new course tags.
-  - `showAllTags`: Fetches and returns all available tags for course categorization and filtering.
+### Controllers
 
-- **Course.js**:
-  - `createCourse`: Handles course creation including title, description, price, category (tag), thumbnail image upload, and instructor association.
-  - `showAllCourses`: Fetches all published courses with basic details for listing and browsing.
+#### Tag.js
+- **createTag**: Allows admin or instructor users to create new course tags.
+- **showAllTags**: Fetches and returns all available tags for course categorization and filtering.
 
-### Utilities:
+#### Course.js
+- **createCourse**: Handles course creation including title, description, price, category (tag), thumbnail image upload, and instructor association.
+- **showAllCourses**: Fetches all published courses with basic details for listing and browsing.
+
+### Utilities
 - **utils/imageUploader.js**:
-  - Centralized image upload helper using Cloudinary.
+  - Centralized image upload utility using Cloudinary.
   - Handles image uploads such as course thumbnails and future assets.
-  - Returns secure image URLs after successful upload.
+  - Returns secure image URLs after successful uploads.
   - Abstracts Cloudinary configuration and upload logic from controllers.
 
-### Models (Used / Integrated):
+### Models (Used / Integrated)
 - **Course.js**: Integrated with tags, instructor (User), and thumbnail image URLs.
 - **tags.js**: Used for course categorization and discovery.
 
-### Current Behavior:
+### Current Behavior
 - Tags can be created and retrieved through API endpoints.
 - Courses can be created with thumbnail images uploaded to Cloudinary.
-- Course listing endpoint returns all available courses for users to browse.
+- Course listing endpoints return all available courses for users to browse.
 
-### Typical Runtime Sequence:
+### Typical Runtime Sequence
 1. Admin or Instructor creates tags using the Tag controller.
 2. Instructor uploads a course thumbnail; `imageUploader` uploads the image to Cloudinary.
 3. Course controller creates a new Course document with tag, instructor, and image URL.
-4. Users fetch all courses via the `getAllCourses` endpoint.
+4. Users fetch all courses via the `showAllCourses` endpoint.
 
-### What the Code Shows Today (Concise):
+### What the Code Shows Today
 - Tag management functionality implemented.
-- Cloudinary-based image upload utility added.
+- Cloudinary-based image upload utility integrated.
 - Core course creation and course listing features are operational.

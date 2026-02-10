@@ -137,3 +137,8 @@ Tag management implemented.
 Cloudinary-based image upload utility added.
 
 Core course creation and course listing functionality now operational.
+
+
+
+
+TAG RENAME TO category
