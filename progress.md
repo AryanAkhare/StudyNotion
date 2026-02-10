@@ -132,3 +132,100 @@
 - Tag management functionality implemented.
 - Cloudinary-based image upload utility integrated.
 - Core course creation and course listing features are operational.
+
+## 2026-02-10 — Code Flow & What Was Added Today
+
+### Controllers
+
+#### Section.js
+- **createSection**  
+  Creates a new Section using `sectionName`.  
+  Pushes the Section `_id` into `Course.courseContent`.  
+  Returns the updated Course with populated `courseContent → subSection`.
+
+- **updateSection**  
+  Updates an existing Section’s `sectionName` using `sectionId`.  
+  Uses `runValidators` to enforce schema validation rules.
+
+- **deleteSection**  
+  Removes the Section `_id` from `Course.courseContent`.  
+  Deletes the Section document from the database.
+
+---
+
+#### SubSection.js
+- **createSubSection**  
+  Validates required fields (`sectionId`, `title`, `timeDuration`, `description`, `video`).  
+  Uploads subsection video to Cloudinary using `utils/imageUploader.js`.  
+  Creates a SubSection document and pushes its `_id` into `Section.subSection`.  
+  Returns the updated Section populated with all subsections.
+
+- **deleteSubSection**  
+  Removes the SubSection `_id` from `Section.subSection`.  
+  Deletes the SubSection document from the database.
+
+---
+
+#### Profile.js
+- **updateProfile**  
+  Updates user profile fields (`dateOfBirth`, `about`, `gender`, `contactNumber`).  
+  Fetches the Profile document via `User.additionalDetails` and saves updated information.
+
+- **deleteAccount**  
+  Deletes the user’s Profile document and User account.  
+  (Cleanup of enrolled course references marked as TODO.)
+
+- **getAllUserDetails**  
+  Fetches the authenticated User document with populated `additionalDetails`.
+
+---
+
+### Models (Updated / Used)
+- **Course.js**  
+  `courseContent` updated dynamically when Sections are added or removed.  
+  Tag field renamed to **category**.
+
+- **Section.js**  
+  Stores references to SubSections in the `subSection` array.
+
+- **SubSection.js**  
+  Stores lesson metadata including title, duration, description, and Cloudinary video URL.
+
+- **User.js & Profile.js**  
+  Used for profile updates, account deletion, and retrieving complete user details.
+
+---
+
+### Utilities
+- **utils/imageUploader.js**  
+  Handles video uploads for subsections using Cloudinary.  
+  Returns secure video URLs and abstracts Cloudinary logic from controllers.
+
+---
+
+### Current Behavior
+- Courses now support hierarchical content structure:
+
+Course → Sections → SubSections (with video)
+
+
+- Sections and SubSections can be created, updated, and deleted dynamically.
+- Profile update and account deletion flows are functional.
+- Media uploads are centralized via the Cloudinary utility.
+
+---
+
+### Typical Runtime Sequence
+1. Instructor creates a Section → Section `_id` added to Course.
+2. Instructor adds SubSections → video uploaded → SubSection linked to Section.
+3. Instructor deletes a Section or SubSection → references cleaned from parent documents.
+4. User updates profile details.
+5. User deletes account → Profile and User documents removed.
+
+---
+
+### What the Code Shows Today
+- Section and SubSection CRUD functionality fully implemented.
+- Course content hierarchy finalized.
+- Profile management and account deletion workflows implemented.
+- Cloudinary integrated for subsection video uploads.
