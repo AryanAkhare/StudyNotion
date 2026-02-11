@@ -229,3 +229,156 @@ Course → Sections → SubSections (with video)
 - Course content hierarchy finalized.
 - Profile management and account deletion workflows implemented.
 - Cloudinary integrated for subsection video uploads.
+
+
+## 2026-02-11 — Code Flow & What Was Added Today
+
+### Payment Integration — Razorpay (Backend)
+
+Razorpay payment gateway integrated to enable secure course purchases.
+
+---
+
+### Configuration
+
+#### config/razorpay.js
+- Razorpay instance initialized using:
+  - `RAZORPAY_KEY`
+  - `RAZORPAY_SECRET`
+- Exports reusable `instance` for order creation.
+
+- Centralized configuration ensures secure environment-based key management.
+
+---
+
+### Controllers
+
+#### Payment.js
+
+---
+
+### capturePayment
+
+**Purpose:**  
+Creates a Razorpay order for a selected course.
+
+**Flow:**
+
+1. Extracts:
+   - `course_id` from request body
+   - `userId` from authenticated `req.user`
+
+2. Validates:
+   - Course ID is provided.
+   - Course exists in database.
+   - User is not already enrolled.
+
+3. Creates Razorpay order:
+   - Amount converted to paise (`price * 100`)
+   - Currency set to `INR`
+   - Receipt generated
+   - `notes` include:
+     - `courseId`
+     - `userId`
+
+4. Calls:
+   ```js
+   instance.orders.create(options)
+   ```
+
+5. Returns:
+   - `orderId`
+   - `amount`
+   - `currency`
+   - Course metadata (name, description, thumbnail)
+
+---
+
+### verifySignature (Webhook Handler)
+
+**Purpose:**  
+Verifies Razorpay webhook signature and enrolls student after successful payment.
+
+**Flow:**
+
+1. Extracts signature from:
+   ```
+   x-razorpay-signature
+   ```
+
+2. Generates HMAC SHA256 hash using:
+   - `RAZORPAY_WEBHOOK_SECRET`
+   - Request body
+
+3. Compares generated digest with received signature.
+
+4. If signature matches:
+   - Extracts `courseId` and `userId` from:
+     ```
+     req.body.payload.payment.entity.notes
+     ```
+   - Adds user to `Course.studentsEnrolled`
+   - Adds course to `User.courses`
+   - Sends enrollment confirmation email
+
+5. Returns success response.
+
+6. If signature fails:
+   - Returns 400 Invalid signature.
+
+---
+
+### Utilities Used
+
+- **utils/mailSender.js**
+  - Sends enrollment confirmation email after successful payment verification.
+
+- **crypto (Node.js)**
+  - Used for SHA256 HMAC signature verification.
+
+---
+
+### Models Integrated
+
+- **Course.js**
+  - `studentsEnrolled` updated after payment success.
+
+- **User.js**
+  - `courses` array updated after enrollment.
+
+---
+
+### Current Behavior
+
+Full payment lifecycle implemented:
+
+UI → Pay Now → Order Created → Razorpay Modal → Payment Success → Webhook → Signature Verification → Enrollment → Email Sent
+
+- Order creation secured via Razorpay instance.
+- Webhook signature verification prevents tampering.
+- Automatic enrollment after successful payment.
+- Confirmation email sent post-enrollment.
+
+---
+
+### Typical Runtime Sequence
+
+1. User clicks **Pay Now**.
+2. Backend creates Razorpay order.
+3. Razorpay modal handles payment (UPI / Card / etc.).
+4. Razorpay triggers webhook event.
+5. Backend verifies signature.
+6. User enrolled in course.
+7. Confirmation email sent.
+
+---
+
+### What the Code Shows Today
+
+- Razorpay backend integration completed.
+- Secure order creation implemented.
+- Webhook-based payment verification implemented.
+- Automatic course enrollment system integrated with payment flow.
+- Email notification system connected to payment success.
+
+```
