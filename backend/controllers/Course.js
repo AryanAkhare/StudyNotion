@@ -1,5 +1,5 @@
 const Course = require("../models/Course");
-const Tag = require("../models/tags");
+const Tag = require("../models/Category");
 const User = require("..models/User");
 
 exports.createCourse = async (req, res) => {
@@ -131,3 +131,43 @@ exports.showAllCourses=async(req,res)=>{
       error:err.message
     });
 }}
+
+
+exports.getAllCourseDetails=async(req,res)=>{
+  try{
+    //get id
+    const {course_id}=req.body;
+    //find course details
+    const courseDetails=await Course.find({
+      _id:course_id
+    }).populate({
+        path:"instructor",populate:{
+          path:"additionalDetails"
+        }
+    }).populate("category").populate("ratingAndReviews").path({
+      path:"courseContent",populate:{
+        path:"subSection"
+      }
+    }).exec();
+
+    if(!courseDetails){
+      return res.status(500).json({
+      success: false,
+      message:'Couldnt find the course with courseId'
+    });
+    }
+
+    return res.status(200).json({
+      success:true,
+      message:"Course details fetched successfully.",
+      data:courseDetails
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message:'Cannot fetch course details.'
+      ,
+      error:err.message
+    });
+  }
+}

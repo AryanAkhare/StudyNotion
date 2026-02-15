@@ -382,3 +382,23 @@ UI → Pay Now → Order Created → Razorpay Modal → Payment Success → Webh
 - Email notification system connected to payment success.
 
 ```
+2026-02-15
+exports.getAllCourseDetails=async(req,res)=>{
+  try{
+    //get id
+    const {course_id}=req.body;
+    //find course details
+    const courseDetails=await Course.find({
+      _id:course_id
+    }).populate({
+      
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message:'Cannot fetch course details.'
+      ,
+      error:err.message
+    });
+  }
+}
