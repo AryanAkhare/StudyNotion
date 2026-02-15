@@ -381,7 +381,6 @@ UI → Pay Now → Order Created → Razorpay Modal → Payment Success → Webh
 - Automatic course enrollment system integrated with payment flow.
 - Email notification system connected to payment success.
 
-```
 ## 2026-02-15 — Code Flow & What Was Added Today
 
 ---
@@ -390,150 +389,109 @@ UI → Pay Now → Order Created → Razorpay Modal → Payment Success → Webh
 
 #### Course.js
 
----
-
 ### getCourseDetails
 
-**Purpose:**  
-Fetch complete course details including instructor, category, ratings, sections, and subsections.
+**Purpose:** Retrieves comprehensive course metadata, including instructor details, hierarchical content structure, and associated reviews.
 
 **Flow:**
+1.  Extracts `course_id` from the request body.
+2.  Queries the database for the course document.
+3.  Executes a deep population chain:
+    -   `instructor` populated with nested `additionalDetails`.
+    -   `category`.
+    -   `ratingAndReviews`.
+    -   `courseContent` populated with nested `subSection`.
+4.  Validates the existence of the course document.
+5.  Returns the fully structured course object.
 
-1. Extract `course_id` from request body.
-2. Fetch course using `Course.find`.
-3. Populate:
-   - `instructor`
-     - Nested populate → `additionalDetails`
-   - `category`
-   - `ratingAndReviews`
-   - `courseContent`
-     - Nested populate → `subSection`
-4. Validate if course exists.
-5. Return full structured course details.
-
-**Current Behavior:**
-
-- Returns hierarchical course structure:
-  
-  Course → Sections → SubSections  
-  Instructor → AdditionalDetails  
-  Category  
-  Ratings & Reviews  
+**Behavior Implemented:**
+-   Ensures deep data linking to render full course pages in a single request.
+-   Validates course availability to prevent null reference errors.
+-   Returns hierarchical content (Course -> Section -> SubSection).
 
 ---
 
 #### RatingAndReview.js
 
----
-
 ### createRating
 
-**Purpose:**  
-Allow enrolled students to submit ratings and reviews.
+**Purpose:** Allows authenticated and enrolled students to submit a rating and review for a specific course.
 
 **Flow:**
-
-1. Extract:
-   - `userId` from `req.user`
-   - `rating`, `review`, `courseId` from request body
-2. Check if student is enrolled in the course.
-3. Check if student has already reviewed the course.
-4. Create `RatingAndReview` document.
-5. Push review `_id` into `Course.ratingAndReviews`.
-6. Return success response.
+1.  Extracts `userId` from the authenticated request and review details from the body.
+2.  Validates that the user is currently enrolled in the specified course.
+3.  Checks the database to ensure the user has not already reviewed this course.
+4.  Creates a new `RatingAndReview` document.
+5.  Updates the `Course` document by pushing the review `_id` into the `ratingAndReviews` array.
+6.  Returns a success response.
 
 **Behavior Implemented:**
-
-- Prevents non-enrolled students from reviewing.
-- Prevents duplicate reviews.
-- Links review to course properly.
-
----
+-   Enforces enrollment-only review policy.
+-   Prevents duplicate reviews from the same user for the same course.
+-   Maintains referential integrity by linking reviews to the course immediately.
 
 ### getAverageRating
 
-**Purpose:**  
-Calculate and return average rating for a course.
+**Purpose:** Calculates the aggregate average rating for a specific course using database aggregation.
 
 **Flow:**
+1.  Validates the provided `courseId`.
+2.  Executes a MongoDB Aggregation Pipeline:
+    -   `$match`: Filters by course ID.
+    -   `$group`: Calculates the `$avg` of the rating field.
+3.  Rounds the result to one decimal place.
+4.  Returns the calculated average or 0 if no ratings exist.
 
-1. Validate `courseId`.
-2. Use MongoDB Aggregation:
-   - `$match` course
-   - `$group` and calculate `$avg` of rating
-3. Round to 1 decimal.
-4. Return average rating.
-
-**Behavior:**
-
-- Returns `0` if no ratings exist.
-- Safe ObjectId validation implemented.
-
----
+**Behavior Implemented:**
+-   Offloads calculation logic to the database engine for performance.
+-   Handles edge cases where courses have zero reviews.
 
 ### getAllRating
 
-**Purpose:**  
-Fetch all ratings sorted by highest rating.
+**Purpose:** Retrieves all system-wide reviews sorted by the highest rating.
 
 **Flow:**
+1.  Queries the `RatingAndReview` collection.
+2.  Sorts documents by `rating` in descending order.
+3.  Populates `user` (selecting `firstName`, `lastName`, `email`, `image`) and `course` (selecting `courseName`).
+4.  Returns the structured list of reviews.
 
-1. Fetch all reviews.
-2. Sort by `rating` descending.
-3. Populate:
-   - `user` → select `firstName lastName email image`
-   - `course` → select `courseName`
-4. Return response.
+**Behavior Implemented:**
+-   Provides a global feed of course feedback.
+-   Selectively populates fields to minimize payload size and protect sensitive user data.
 
 ---
 
 #### Category.js
 
----
-
 ### categoryPageDetails
 
-**Purpose:**  
-Fetch category page data including:
-
-- Selected category courses
-- Different categories
-- Top selling courses
+**Purpose:** Aggregates data for the category page, including selected category courses, other categories, and top-selling courses.
 
 **Flow:**
+1.  Extracts `categoryId` from the request.
+2.  Fetches the selected category and populates associated courses.
+3.  Fetches different categories (excluding the current one).
+4.  Fetches the top 5 selling courses system-wide, sorted by `totalStudentsEnrolled`.
+5.  Returns a composite object containing all three data sets.
 
-1. Extract `categoryId`.
-2. Fetch selected category and populate courses.
-3. Fetch other categories (`$ne` current id).
-4. Fetch top 5 selling courses:
-   - Sorted by `totalStudentsEnrolled`
-5. Return structured response.
-
----
-
-### Current System Capabilities (As of 15-02-2026)
-
-- Full course detail retrieval with deep population.
-- Course review creation with enrollment validation.
-- Average rating aggregation.
-- Fetch all ratings with user and course data.
-- Category page structured data API.
-- Top selling course sorting implemented.
+**Behavior Implemented:**
+-   Implements logic to display "Top Selling" courses based on enrollment data.
+-   Provides a complete data packet for the category catalog page.
 
 ---
 
-### Backend Status Level
+### Models (Updated)
 
-The backend now includes:
+-   **RatingAndReview.js:** Active usage for storing user feedback; linked to User and Course models.
+-   **Course.js:** Updated to include references to `RatingAndReview` documents.
 
-- Authentication system
-- OTP & password reset flow
-- Course management (CRUD)
-- Section & SubSection hierarchy
-- Cloudinary media integration
-- Razorpay payment integration
-- Enrollment system
-- Review & rating system
-- Category page API with top selling logic
+---
 
-Backend architecture is now approaching **production-level LMS backend structure**.
+### Current System Capability After This Update
+
+-   **Full Course Detail Retrieval:** Frontend can request complex, nested course data in a single API call.
+-   **Review System:** Secure, enrollment-locked review creation with duplicate prevention.
+-   **Data Aggregation:** Server-side calculation of average ratings.
+-   **Marketplace Logic:** Implementation of "Top Selling" logic and category-based filtering.
+-   **Production Readiness:** Backend architecture now supports the full lifecycle of course creation, purchase, consumption, and review.
