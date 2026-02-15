@@ -133,7 +133,7 @@ exports.showAllCourses=async(req,res)=>{
 }}
 
 
-exports.getAllCourseDetails=async(req,res)=>{
+exports.getCourseDetails=async(req,res)=>{
   try{
     //get id
     const {course_id}=req.body;
