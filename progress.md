@@ -382,23 +382,158 @@ UI → Pay Now → Order Created → Razorpay Modal → Payment Success → Webh
 - Email notification system connected to payment success.
 
 ```
-2026-02-15
-exports.getAllCourseDetails=async(req,res)=>{
-  try{
-    //get id
-    const {course_id}=req.body;
-    //find course details
-    const courseDetails=await Course.find({
-      _id:course_id
-    }).populate({
-      
-    })
-  }catch(err){
-    return res.status(500).json({
-      success: false,
-      message:'Cannot fetch course details.'
-      ,
-      error:err.message
-    });
-  }
-}
+## 2026-02-15 — Code Flow & What Was Added Today
+
+---
+
+### Controllers
+
+#### Course.js
+
+---
+
+### getCourseDetails
+
+**Purpose:**  
+Fetch complete course details including instructor, category, ratings, sections, and subsections.
+
+**Flow:**
+
+1. Extract `course_id` from request body.
+2. Fetch course using `Course.find`.
+3. Populate:
+   - `instructor`
+     - Nested populate → `additionalDetails`
+   - `category`
+   - `ratingAndReviews`
+   - `courseContent`
+     - Nested populate → `subSection`
+4. Validate if course exists.
+5. Return full structured course details.
+
+**Current Behavior:**
+
+- Returns hierarchical course structure:
+  
+  Course → Sections → SubSections  
+  Instructor → AdditionalDetails  
+  Category  
+  Ratings & Reviews  
+
+---
+
+#### RatingAndReview.js
+
+---
+
+### createRating
+
+**Purpose:**  
+Allow enrolled students to submit ratings and reviews.
+
+**Flow:**
+
+1. Extract:
+   - `userId` from `req.user`
+   - `rating`, `review`, `courseId` from request body
+2. Check if student is enrolled in the course.
+3. Check if student has already reviewed the course.
+4. Create `RatingAndReview` document.
+5. Push review `_id` into `Course.ratingAndReviews`.
+6. Return success response.
+
+**Behavior Implemented:**
+
+- Prevents non-enrolled students from reviewing.
+- Prevents duplicate reviews.
+- Links review to course properly.
+
+---
+
+### getAverageRating
+
+**Purpose:**  
+Calculate and return average rating for a course.
+
+**Flow:**
+
+1. Validate `courseId`.
+2. Use MongoDB Aggregation:
+   - `$match` course
+   - `$group` and calculate `$avg` of rating
+3. Round to 1 decimal.
+4. Return average rating.
+
+**Behavior:**
+
+- Returns `0` if no ratings exist.
+- Safe ObjectId validation implemented.
+
+---
+
+### getAllRating
+
+**Purpose:**  
+Fetch all ratings sorted by highest rating.
+
+**Flow:**
+
+1. Fetch all reviews.
+2. Sort by `rating` descending.
+3. Populate:
+   - `user` → select `firstName lastName email image`
+   - `course` → select `courseName`
+4. Return response.
+
+---
+
+#### Category.js
+
+---
+
+### categoryPageDetails
+
+**Purpose:**  
+Fetch category page data including:
+
+- Selected category courses
+- Different categories
+- Top selling courses
+
+**Flow:**
+
+1. Extract `categoryId`.
+2. Fetch selected category and populate courses.
+3. Fetch other categories (`$ne` current id).
+4. Fetch top 5 selling courses:
+   - Sorted by `totalStudentsEnrolled`
+5. Return structured response.
+
+---
+
+### Current System Capabilities (As of 15-02-2026)
+
+- Full course detail retrieval with deep population.
+- Course review creation with enrollment validation.
+- Average rating aggregation.
+- Fetch all ratings with user and course data.
+- Category page structured data API.
+- Top selling course sorting implemented.
+
+---
+
+### Backend Status Level
+
+The backend now includes:
+
+- Authentication system
+- OTP & password reset flow
+- Course management (CRUD)
+- Section & SubSection hierarchy
+- Cloudinary media integration
+- Razorpay payment integration
+- Enrollment system
+- Review & rating system
+- Category page API with top selling logic
+
+Backend architecture is now approaching **production-level LMS backend structure**.
