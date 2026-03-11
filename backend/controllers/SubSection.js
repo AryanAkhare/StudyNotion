@@ -60,10 +60,52 @@ exports.createSubSection = async (req, res) => {
 };
 
 exports.updateSubSection = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "updateSubSection is not implemented yet.",
-  });
+  try {
+    const { subSectionId, title, timeDuration, description, additionalUrl } = req.body;
+    const video = req.files?.videoFile;
+
+    if (!subSectionId) {
+      return res.status(400).json({
+        success: false,
+        message: "subSectionId is required.",
+      });
+    }
+
+    const updatePayload = {};
+    if (title) updatePayload.title = title;
+    if (timeDuration) updatePayload.timeDuration = timeDuration;
+    if (description) updatePayload.description = description;
+    if (additionalUrl) updatePayload.additionalUrl = additionalUrl;
+
+    if (video) {
+      const uploadDetails = await uploadImageToCloudinary(video, process.env.FOLDER_NAME);
+      updatePayload.videoUrl = uploadDetails.secure_url;
+    }
+
+    const updatedSubSection = await SubSection.findByIdAndUpdate(subSectionId, updatePayload, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedSubSection) {
+      return res.status(404).json({
+        success: false,
+        message: "SubSection not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "SubSection updated successfully.",
+      updatedSubSection,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update SubSection.",
+      error: err.message,
+    });
+  }
 };
 
 

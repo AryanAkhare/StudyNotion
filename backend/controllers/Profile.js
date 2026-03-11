@@ -1,5 +1,6 @@
-const Profile=require('../models/Profile')
-const User=require('../models/User')
+const Profile = require('../models/Profile')
+const User = require('../models/User')
+const Course = require('../models/Course')
 
 exports.updateProfile = async (req, res) => {
   try {
@@ -124,23 +125,122 @@ exports.getAllUserDetails = async (req, res) => {
   }
 };
 
+const { uploadImageToCloudinary } = require("../utils/imageUploader");
+
 exports.updateDisplayPicture = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "updateDisplayPicture is not implemented yet.",
-  });
+  try {
+    const userId = req.user?.id;
+    const file = req.files?.displayPicture;
+
+    if (!userId || !file) {
+      return res.status(400).json({
+        success: false,
+        message: "user id and displayPicture file are required.",
+      });
+    }
+
+    const uploadResult = await uploadImageToCloudinary(file, process.env.FOLDER_NAME);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { image: uploadResult.secure_url },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Display picture updated successfully.",
+      imageUrl: updatedUser.image,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update display picture.",
+      error: err.message,
+    });
+  }
 };
 
 exports.getEnrolledCourses = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "getEnrolledCourses is not implemented yet.",
-  });
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access.",
+      });
+    }
+
+    const user = await User.findById(userId).populate({
+      path: "courses",
+      populate: [
+        { path: "instructor", select: "firstName lastName" },
+        { path: "category" },
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Enrolled courses fetched successfully.",
+      courses: user.courses,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch enrolled courses.",
+      error: err.message,
+    });
+  }
 };
 
 exports.instructorDashboard = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "instructorDashboard is not implemented yet.",
-  });
+  try {
+    const instructorId = req.user?.id;
+    if (!instructorId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access.",
+      });
+    }
+
+    const instructorCourses = await Course.find({ instructor: instructorId })
+      .populate("studentsEnrolled")
+      .exec();
+
+    const totalCourses = instructorCourses.length;
+    const totalStudents = instructorCourses.reduce(
+      (sum, course) => sum + (course.studentsEnrolled?.length || 0),
+      0,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Instructor dashboard data fetched successfully.",
+      data: {
+        totalCourses,
+        totalStudents,
+        courses: instructorCourses,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch instructor dashboard.",
+      error: err.message,
+    });
+  }
 };

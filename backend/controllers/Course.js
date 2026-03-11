@@ -200,29 +200,168 @@ exports.getCourseDetails = async (req, res) => {
 };
 
 exports.getFullCourseDetails = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "getFullCourseDetails is not implemented yet.",
-  });
+  try {
+    const { courseId, course_id } = req.body;
+    const id = courseId || course_id;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "courseId is required.",
+      });
+    }
+
+    const courseDetails = await Course.findById(id)
+      .populate({ path: "instructor", populate: { path: "additionalDetails" } })
+      .populate("category")
+      .populate({ path: "courseContent", populate: { path: "subSection" } })
+      .populate({ path: "ratingAndReviews", populate: { path: "user", select: "firstName lastName" } })
+      .exec();
+
+    if (!courseDetails) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Full course details fetched successfully.",
+      data: courseDetails,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Cannot fetch full course details.",
+      error: err.message,
+    });
+  }
 };
 
 exports.editCourse = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "editCourse is not implemented yet.",
-  });
+  try {
+    const instructorId = req.user?.id;
+    const { courseId, course_id, courseName, courseDescription, whatYouWillLearn, price, categoryId, status, instructions, tag } = req.body;
+    const id = courseId || course_id;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "courseId is required.",
+      });
+    }
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found.",
+      });
+    }
+
+    if (String(course.instructor) !== String(instructorId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to edit this course.",
+      });
+    }
+
+    const updatePayload = {};
+    if (courseName) updatePayload.courseName = courseName;
+    if (courseDescription) updatePayload.courseDescription = courseDescription;
+    if (whatYouWillLearn) updatePayload.whatYouWillLearn = whatYouWillLearn;
+    if (typeof price !== "undefined") updatePayload.price = price;
+    if (categoryId) updatePayload.category = categoryId;
+    if (status) updatePayload.status = status;
+    if (instructions) updatePayload.instructions = instructions;
+    if (tag) updatePayload.tag = tag;
+
+    const updatedCourse = await Course.findByIdAndUpdate(id, updatePayload, { new: true, runValidators: true });
+
+    return res.status(200).json({
+      success: true,
+      message: "Course updated successfully.",
+      data: updatedCourse,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to edit course.",
+      error: err.message,
+    });
+  }
 };
 
 exports.getInstructorCourses = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "getInstructorCourses is not implemented yet.",
-  });
+  try {
+    const instructorId = req.user?.id;
+
+    if (!instructorId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access.",
+      });
+    }
+
+    const instructorCourses = await Course.find({ instructor: instructorId })
+      .populate("category")
+      .populate("courseContent")
+      .exec();
+
+    return res.status(200).json({
+      success: true,
+      message: "Instructor courses fetched successfully.",
+      courses: instructorCourses,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch instructor courses.",
+      error: err.message,
+    });
+  }
 };
 
 exports.deleteCourse = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "deleteCourse is not implemented yet.",
-  });
+  try {
+    const instructorId = req.user?.id;
+    const { courseId, course_id } = req.body;
+    const id = courseId || course_id;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "courseId is required.",
+      });
+    }
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found.",
+      });
+    }
+
+    if (String(course.instructor) !== String(instructorId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to delete this course.",
+      });
+    }
+
+    await Course.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Course deleted successfully.",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete course.",
+      error: err.message,
+    });
+  }
 };

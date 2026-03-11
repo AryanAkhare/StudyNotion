@@ -5,11 +5,13 @@ const user = require("../models/User");
 //auth
 exports.auth = async (req, res, next) => {
   try {
-    //get token
-    const token =
-      req.cookies.token ||
-      req.body.token ||
-      req.header("Authorisation").replace("Bearer", "");
+    // get token from cookie, body, or standard Authorization header
+    const authHeader = req.header("Authorization") || req.header("authorization");
+    let token = req.cookies?.token || req.body?.token || null;
+
+    if (!token && authHeader) {
+      token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    }
 
     if (!token) {
       return res.status(401).json({

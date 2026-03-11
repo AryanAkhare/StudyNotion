@@ -5,6 +5,7 @@ const { instance } = require("../config/razorpay");
 const Course = require("../models/Course");
 const User = require("../models/User");
 const mailSender = require("../utils/mailSender");
+const { courseEnrollmentEmail } = require("../mail/templates/courseEnrollmentEmail");
 
 // capture payment and initiate order (supports card/UPI via Razorpay)
 exports.capturePayment = async (req, res) => {
@@ -107,11 +108,11 @@ exports.verifySignature = async (req, res) => {
       });
     }
 
-    await mailSender(
-      enrolledStudent.email,
-      "Congratulations from StudyNotion",
-      "You have successfully enrolled in the course.",
+    const body = courseEnrollmentEmail(
+      enrolledStudent.firstName,
+      enrolledCourse.courseName,
     );
+    await mailSender(enrolledStudent.email, "Course Enrollment Confirmed", body);
 
     return res.status(200).json({
       success: true,

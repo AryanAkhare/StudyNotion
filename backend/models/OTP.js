@@ -1,10 +1,7 @@
 const mongoose = require("mongoose");
 const mailSender = require("../utils/mailSender");
 
-
-
-
-const OTPSchema=mongoose.Schema({
+const OTPSchema = mongoose.Schema({
     email:{
         type:String,
         required:true
@@ -27,18 +24,23 @@ const OTPSchema=mongoose.Schema({
 // so otp model have mailsend nodemailer code
 
 //function to send mail pre-middleware
-async function sendVerificationEmail(email,otp){
-    try{
-        const mailResponse=await mailSender(email,"Verification Email for StudyNest",otp);
-        console.log("Email sent successfully.",mailResponse)
-
-    }catch(error){
-        console.log("Error while sending mail.",error)
-        throw error;
-    }
+async function sendVerificationEmail(email, otp) {
+  try {
+    const body = `<p>Your OTP for StudyNotion is <strong>${otp}</strong>. It is valid for 5 minutes.</p>`;
+    const mailResponse = await mailSender(
+      email,
+      "Verification Email for StudyNotion",
+      body,
+    );
+    console.log("Email sent successfully.", mailResponse);
+  } catch (error) {
+    console.log("Error while sending mail.", error);
+    throw error;
+  }
 }
-OTPSchema.pre("save",async function(next){
-    await sendVerificationEmail(this.email,this.otp);
-    next();
-})
-module.exports=mongoose.model("OTP",OTPSchema);
+
+OTPSchema.pre("save", async function () {
+  await sendVerificationEmail(this.email, this.otp);
+});
+
+module.exports = mongoose.model("OTP", OTPSchema);

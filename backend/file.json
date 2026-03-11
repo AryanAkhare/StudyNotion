@@ -1,0 +1,532 @@
+{
+  "info": {
+    "name": "StudyNotion API",
+    "description": "Backend routes for StudyNotion manual testing. Base URL: http://localhost:4000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. AUTH & RESET PASSWORD",
+      "item": [
+        {
+          "name": "1.1 Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/auth/login", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "auth", "login"] }
+          }
+        },
+        {
+          "name": "1.2 Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Aryan\",\n  \"lastName\": \"Akhare\",\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123\",\n  \"confirmPassword\": \"Password123\",\n  \"accountType\": \"Student\",\n  \"contactNumber\": \"9999999999\",\n  \"otp\": \"123456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/auth/signup", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "auth", "signup"] }
+          }
+        },
+        {
+          "name": "1.3 Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/auth/sendotp", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "auth", "sendotp"] }
+          }
+        },
+        {
+          "name": "1.4 Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"OldPass123\",\n  \"newPassword\": \"NewPass123\",\n  \"confirmNewPassword\": \"NewPass123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/auth/changepassword", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "auth", "changepassword"] }
+          }
+        },
+        {
+          "name": "1.5 Create Reset Password Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/auth/reset-password-token", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "auth", "reset-password-token"] }
+          }
+        },
+        {
+          "name": "1.6 Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPass123\",\n  \"confirmPassword\": \"NewPass123\",\n  \"token\": \"<RESET_TOKEN_FROM_EMAIL>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/auth/reset-password", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "auth", "reset-password"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. PROFILE ROUTES",
+      "item": [
+        {
+          "name": "2.1 Delete Account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Cookie", "value": "token=<JWT_HERE>" }
+            ],
+            "url": { "raw": "http://localhost:4000/api/v1/profile/deleteProfile", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "profile", "deleteProfile"] }
+          }
+        },
+        {
+          "name": "2.2 Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateOfBirth\": \"2000-01-01\",\n  \"about\": \"About me\",\n  \"contactNumber\": \"9999999999\",\n  \"gender\": \"Male\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/profile/updateProfile", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "profile", "updateProfile"] }
+          }
+        },
+        {
+          "name": "2.3 Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Cookie", "value": "token=<JWT_HERE>" }
+            ],
+            "url": { "raw": "http://localhost:4000/api/v1/profile/getUserDetails", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "profile", "getUserDetails"] }
+          }
+        },
+        {
+          "name": "2.4 Get Enrolled Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Cookie", "value": "token=<JWT_HERE>" }
+            ],
+            "url": { "raw": "http://localhost:4000/api/v1/profile/getEnrolledCourses", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "profile", "getEnrolledCourses"] }
+          }
+        },
+        {
+          "name": "2.5 Update Display Picture",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Cookie", "value": "token=<JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "displayPicture", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/profile/updateDisplayPicture", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "profile", "updateDisplayPicture"] }
+          }
+        },
+        {
+          "name": "2.6 Instructor Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "url": { "raw": "http://localhost:4000/api/v1/profile/instructorDashboard", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "profile", "instructorDashboard"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. COURSE & CATEGORY ROUTES",
+      "item": [
+        {
+          "name": "3.1 Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "courseName", "value": "My Course", "type": "text" },
+                { "key": "courseDescription", "value": "Nice course", "type": "text" },
+                { "key": "whatYouWillLearn", "value": "Skills list", "type": "text" },
+                { "key": "price", "value": "999", "type": "text" },
+                { "key": "categoryId", "value": "<CATEGORY_ID>", "type": "text" },
+                { "key": "thumbnailImage", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/createCourse", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "createCourse"] }
+          }
+        },
+        {
+          "name": "3.2 Add Section",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionName\": \"Introduction\",\n  \"courseId\": \"<COURSE_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/addSection", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "addSection"] }
+          }
+        },
+        {
+          "name": "3.3 Update Section",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionName\": \"Updated name\",\n  \"sectionId\": \"<SECTION_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/updateSection", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "updateSection"] }
+          }
+        },
+        {
+          "name": "3.4 Delete Section",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": \"<SECTION_ID>\",\n  \"courseId\": \"<COURSE_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/deleteSection", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "deleteSection"] }
+          }
+        },
+        {
+          "name": "3.5 Add SubSection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "sectionId", "value": "<SECTION_ID>", "type": "text" },
+                { "key": "title", "value": "Lecture 1", "type": "text" },
+                { "key": "timeDuration", "value": "10:00", "type": "text" },
+                { "key": "description", "value": "Intro video", "type": "text" },
+                { "key": "videoFile", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/addSubSection", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "addSubSection"] }
+          }
+        },
+        {
+          "name": "3.6 Update SubSection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subSectionId\": \"<SUBSECTION_ID>\",\n  \"sectionId\": \"<SECTION_ID>\",\n  \"title\": \"Updated title\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/updateSubSection", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "updateSubSection"] }
+          }
+        },
+        {
+          "name": "3.7 Delete SubSection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subSectionId\": \"<SUBSECTION_ID>\",\n  \"sectionId\": \"<SECTION_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/deleteSubSection", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "deleteSubSection"] }
+          }
+        },
+        {
+          "name": "3.8 Get All Courses",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:4000/api/v1/course/getAllCourses", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "getAllCourses"] }
+          }
+        },
+        {
+          "name": "3.9 Get Course Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/getCourseDetails", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "getCourseDetails"] }
+          }
+        },
+        {
+          "name": "3.10 Get Full Course Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/getFullCourseDetails", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "getFullCourseDetails"] }
+          }
+        },
+        {
+          "name": "3.11 Edit Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\",\n  \"updates\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/editCourse", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "editCourse"] }
+          }
+        },
+        {
+          "name": "3.12 Get Instructor Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Cookie", "value": "token=<INSTRUCTOR_JWT_HERE>" }
+            ],
+            "url": { "raw": "http://localhost:4000/api/v1/course/getInstructorCourses", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "getInstructorCourses"] }
+          }
+        },
+        {
+          "name": "3.13 Delete Course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/deleteCourse", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "deleteCourse"] }
+          }
+        },
+        {
+          "name": "3.14 Update Course Progress",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<STUDENT_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\",\n  \"subSectionId\": \"<SUBSECTION_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/updateCourseProgress", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "updateCourseProgress"] }
+          }
+        },
+        {
+          "name": "3.15 Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<ADMIN_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dev\",\n  \"description\": \"Dev courses\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/createCategory", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "createCategory"] }
+          }
+        },
+        {
+          "name": "3.16 Show All Categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:4000/api/v1/course/showAllCategories", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "showAllCategories"] }
+          }
+        },
+        {
+          "name": "3.17 Get Category Page Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"<CATEGORY_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/getCategoryPageDetails", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "getCategoryPageDetails"] }
+          }
+        },
+        {
+          "name": "3.18 Create Rating",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<STUDENT_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\",\n  \"rating\": 5,\n  \"review\": \"Great course\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/createRating", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "createRating"] }
+          }
+        },
+        {
+          "name": "3.19 Get Average Rating",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/course/getAverageRating", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "getAverageRating"] }
+          }
+        },
+        {
+          "name": "3.20 Get All Reviews",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:4000/api/v1/course/getReviews", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "course", "getReviews"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. PAYMENT / RAZORPAY ROUTES",
+      "item": [
+        {
+          "name": "4.1 Capture Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<STUDENT_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"<COURSE_ID>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/payments/capturePayment", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "payments", "capturePayment"] }
+          }
+        },
+        {
+          "name": "4.2 Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Razorpay-Signature", "value": "<SIGNATURE_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"notes\": {\n          \"courseId\": \"<COURSE_ID>\",\n          \"userId\": \"<USER_ID>\"\n        }\n      }\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/payments/verifyPayment", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "payments", "verifyPayment"] }
+          }
+        },
+        {
+          "name": "4.3 Send Payment Success Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "token=<STUDENT_JWT_HERE>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"courseName\": \"My Course\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "http://localhost:4000/api/v1/payments/sendPaymentSuccessEmail", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["api", "v1", "payments", "sendPaymentSuccessEmail"] }
+          }
+        }
+      ]
+    }
+  ]
+}

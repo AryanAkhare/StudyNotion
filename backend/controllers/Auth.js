@@ -9,7 +9,7 @@ const Profile = require("../models/Profile");
 require("dotenv").config();
 
 // Route expects: sendotp
-exports.sendotp = async (req, res) => {
+exports.sendotp = async (req, res , next) => {
   try {
     const { email } = req.body;
 
@@ -73,6 +73,8 @@ exports.signup = async (req, res) => {
       accountType = "Student",
       contactNumber = "",
       otp,
+      gender = "Other",
+      dateOfBirth = "2000-01-01",
     } = req.body;
 
     if (
@@ -125,10 +127,10 @@ exports.signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const profileDetails = await Profile.create({
-      gender: null,
-      dateOfBirth: null,
+      gender: gender || "Other",
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : new Date("2000-01-01"),
       about: null,
-      contactNumber: null,
+      contactNumber: contactNumber || "",
     });
 
     const user = await User.create({
@@ -222,8 +224,53 @@ exports.login = async (req, res) => {
 };
 
 exports.changePassword = async (req, res) => {
-  return res.status(501).json({
-    success: false,
-    message: "changePassword is not implemented yet.",
-  });
+  try {
+    const userId = req.user?.id;
+    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+    if (!userId || !oldPassword || !newPassword || !confirmNewPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "userId, oldPassword, newPassword and confirmNewPassword are required.",
+      });
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password and confirm password do not match.",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Old password is incorrect.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to change password.",
+      error: error.message,
+    });
+  }
 };
