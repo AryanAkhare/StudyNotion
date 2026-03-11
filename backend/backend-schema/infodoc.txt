@@ -94,3 +94,11 @@ Notes & action items:
 - Consider adding indexes for commonly queried fields (e.g., `User.email`, `OTP.email`) and rate-limiting on OTP generation endpoints.
 
 This document was generated from the current model files in `backend/models` on 2026-02-03.
+
+2026-03-11 — Schema notes since initial doc
+
+- Course model now uses a `category` field (ref `Category`) instead of `tag`, and Category replaces the earlier Tag model in controllers.
+- User model now includes `token` and `resetPasswordExpires` fields to support password reset.
+- CourseProgress tracks `completedVideos` as an array of `SubSection` ids.
+- `OTP` model correctly imports `../utils/mailSender` and still sends verification emails in a pre-save hook.
+- Razorpay and Cloudinary each have dedicated config files (`config/razorpay.js`, `config/cloudinary.js`) wired into controllers and utilities.

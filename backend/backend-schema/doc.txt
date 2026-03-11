@@ -4,38 +4,49 @@ Table users {
   lastName varchar
   email varchar [note: "unique"]
   password varchar
-  accountType varchar
-  additionalDetails varchar
+  accountType varchar [note: "Admin | Student | Instructor"]
+  additionalDetails varchar [note: "ref profiles.id"]
   image varchar
-  courseProgess varchar
+  courses varchar [note: "array of course ids"]
+  courseProgess varchar [note: "array of course_progress ids"]
+  token varchar [note: "password-reset token"]
+  resetPasswordExpires datetime
 }
+
 Table profiles {
   id varchar [primary key, note: "MongoDB ObjectId"]
-  gender varchar
+  gender varchar [note: "Male | Female | Other"]
   dateOfBirth datetime
   about text
   contactNumber varchar
 }
+
 Table otp {
   id varchar [primary key, note: "MongoDB ObjectId"]
   email varchar
   otp varchar
-  createdAt datetime [note: "TTL: 5 minutes"]
+  createdAt datetime [note: "TTL: 5 minutes, pre-save sends email"]
 }
+
 Table courses {
   id varchar [primary key, note: "MongoDB ObjectId"]
   courseName varchar
   courseDescription text
-  instructor varchar
+  instructor varchar [note: "ref users.id"]
   whatYouWillLearn text
   price int
-  tag varchar
+  category varchar [note: "ref categories.id"]
+  courseContent varchar [note: "array of section ids"]
+  ratingAndReviews varchar [note: "array of rating_and_reviews ids"]
+  studentsEnrolled varchar [note: "array of user ids"]
 }
+
 Table sections {
   id varchar [primary key, note: "MongoDB ObjectId"]
   sectionName varchar
-  courseId varchar
+  courseId varchar [note: "ref courses.id"]
 }
+
 Table sub_sections {
   id varchar [primary key, note: "MongoDB ObjectId"]
   title varchar
@@ -43,24 +54,29 @@ Table sub_sections {
   description text
   videoUrl varchar
   additionalUrl varchar
-  section_id varchar
+  section_id varchar [note: "ref sections.id"]
 }
+
 Table course_progress {
   id varchar [primary key, note: "MongoDB ObjectId"]
-  courseId varchar
+  courseId varchar [note: "ref courses.id"]
+  completedVideos varchar [note: "array of sub_section ids"]
 }
+
 Table rating_and_reviews {
   id varchar [primary key, note: "MongoDB ObjectId"]
-  user varchar
+  user varchar [note: "ref users.id"]
   rating int
   review text
 }
-Table tags {
+
+Table categories {
   id varchar [primary key, note: "MongoDB ObjectId"]
   name varchar
   description text
-  course varchar
+  course varchar [note: "ref courses.id"]
 }
+
 Table invoices {
   id varchar [primary key, note: "MongoDB ObjectId"]
   userId varchar
@@ -70,19 +86,19 @@ Table invoices {
   billingAddress text
   pincode varchar
 }
+
 Ref: users.additionalDetails > profiles.id
 
 Ref: courses.instructor > users.id
-Ref: courses.tag > tags.id
+Ref: courses.category > categories.id
 
 Ref: sections.courseId > courses.id
 Ref: sub_sections.section_id > sections.id
 
 Ref: course_progress.courseId > courses.id
-
 Ref: rating_and_reviews.user > users.id
 
-Ref: tags.course > courses.id
+Ref: categories.course > courses.id
 
 Ref: invoices.userId > users.id
 Ref: invoices.courseId > courses.id

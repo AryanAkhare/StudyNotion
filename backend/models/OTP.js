@@ -1,5 +1,5 @@
-const mongoose=require("mongoose");
-const mailSender=require("mailSender")
+const mongoose = require("mongoose");
+const mailSender = require("../utils/mailSender");
 
 
 

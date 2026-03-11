@@ -90,9 +90,8 @@ exports.deleteSection = async (req, res) => {
       $pull: { courseContent: sectionId },
     });
 
-    // delete section
+    // delete section after removing reference from course
     await Section.findByIdAndDelete(sectionId);
-    //TODO :- do we need to remove from courseScehma too?
     return res.status(200).json({
       success: true,
       message: "Section deleted successfully",

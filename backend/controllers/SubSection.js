@@ -59,6 +59,13 @@ exports.createSubSection = async (req, res) => {
   }
 };
 
+exports.updateSubSection = async (req, res) => {
+  return res.status(501).json({
+    success: false,
+    message: "updateSubSection is not implemented yet.",
+  });
+};
+
 
 
 exports.deleteSubSection = async (req, res) => {
@@ -97,38 +104,4 @@ exports.deleteSubSection = async (req, res) => {
   }
 };
 
-exports.deleteSubSection = async (req, res) => {
-  try {
-    const { subSectionId, sectionId } = req.body;
-
-    if (!subSectionId || !sectionId) {
-      return res.status(400).json({
-        success: false,
-        message: "subSectionId and sectionId are required",
-      });
-    }
-
-    // remove subsection reference from section
-    await Section.findByIdAndUpdate(
-      sectionId,
-      {
-        $pull: { subSection: subSectionId },
-      }
-    );
-
-    // delete subsection
-    await SubSection.findByIdAndDelete(subSectionId);
-
-    return res.status(200).json({
-      success: true,
-      message: "SubSection deleted successfully",
-    });
-
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "SubSection deletion failed",
-      error: err.message,
-    });
-  }
-};
+// NOTE: duplicate deleteSubSection removed
